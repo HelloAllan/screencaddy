@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>ScreenCaddy</string>
+    <key>CFBundleIdentifier</key>
+    <string>app.screencaddy</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleExecutable</key>
+    <string>ScreenCaddy</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.utilities</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>ScreenCaddy needs screen recording permission to capture and mirror your selected app windows.</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 ScreenCaddy. All rights reserved.</string>
+</dict>
+</plist>

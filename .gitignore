@@ -1,0 +1,30 @@
+# Build artifacts
+.build/
+*.o
+*.d
+*.dia
+*.dmg
+*.pkg
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+._*
+
+# IDE / AI tooling
+.idea/
+.claude/
+.entire/
+CLAUDE.md
+
+# App bundle output
+*.app/
