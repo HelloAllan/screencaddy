@@ -7,34 +7,40 @@ CONTENTS_DIR = $(BUNDLE_DIR)/Contents
 MACOS_DIR = $(CONTENTS_DIR)/MacOS
 RESOURCES_DIR = $(CONTENTS_DIR)/Resources
 
+# Set ARCHS="arm64 x86_64" for a universal binary (default: host architecture)
+ARCHS ?=
+ARCH_FLAGS = $(foreach a,$(ARCHS),--arch $(a))
+BIN_PATH = $(shell swift build -c release $(ARCH_FLAGS) --show-bin-path)
+
 .PHONY: build release bundle dmg dmg-layout dmg-save run clean appstore
 
 build:
 	swift build
 
 release:
-	swift build -c release
+	swift build -c release $(ARCH_FLAGS)
 
+# Set VERSION=1.2.3 to override the bundle version (default: 1.0.0-<git hash>)
 bundle: release
 	mkdir -p "$(MACOS_DIR)" "$(RESOURCES_DIR)"
-	cp "$(BUILD_DIR)/release/$(EXECUTABLE)" "$(MACOS_DIR)/$(EXECUTABLE)"
+	cp "$(BIN_PATH)/$(EXECUTABLE)" "$(MACOS_DIR)/$(EXECUTABLE)"
 	chmod +x "$(MACOS_DIR)/$(EXECUTABLE)"
 	cp SupportFiles/Info.plist "$(CONTENTS_DIR)/Info.plist"
 	GIT_HASH=$$(git rev-parse --short HEAD) && \
-	/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.0-$$GIT_HASH" "$(CONTENTS_DIR)/Info.plist"
+	/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $${VERSION:-1.0.0-$$GIT_HASH}" "$(CONTENTS_DIR)/Info.plist"
 	cp Assets/Icon.icns "$(RESOURCES_DIR)/AppIcon.icns"
 	cp Assets/BackgroundChalk.png "$(RESOURCES_DIR)/BackgroundChalk.png"
 	cp Assets/Chalkboard-Regular.ttf "$(RESOURCES_DIR)/Chalkboard-Regular.ttf"
 	cp Assets/Arrow1.png "$(RESOURCES_DIR)/Arrow1.png"
 	cp Assets/Arrow2.png "$(RESOURCES_DIR)/Arrow2.png"
-	codesign --force --deep --options runtime --sign "Developer ID Application" --identifier "$(BUNDLE_ID)" "$(BUNDLE_DIR)"
+	codesign --force --deep --options runtime --timestamp --sign "Developer ID Application" --identifier "$(BUNDLE_ID)" "$(BUNDLE_DIR)"
 	@echo "Built $(BUNDLE_DIR)"
 
 PROVISION_PROFILE = $(HOME)/Library/Developer/Xcode/UserData/Provisioning\ Profiles/35d206a0-afac-4ee8-ad5c-b13c8200422b.provisionprofile
 
 appstore: release
 	mkdir -p "$(MACOS_DIR)" "$(RESOURCES_DIR)"
-	cp "$(BUILD_DIR)/release/$(EXECUTABLE)" "$(MACOS_DIR)/$(EXECUTABLE)"
+	cp "$(BIN_PATH)/$(EXECUTABLE)" "$(MACOS_DIR)/$(EXECUTABLE)"
 	chmod +x "$(MACOS_DIR)/$(EXECUTABLE)"
 	cp SupportFiles/Info.plist "$(CONTENTS_DIR)/Info.plist"
 	cp Assets/Icon.icns "$(RESOURCES_DIR)/AppIcon.icns"
@@ -56,8 +62,6 @@ dmg: bundle
 	./scripts/create-dmg.sh build
 	xcrun notarytool submit --keychain-profile "screencaddy" "$(BUILD_DIR)/$(APP_NAME).dmg" --wait
 	xcrun stapler staple "$(BUILD_DIR)/$(APP_NAME).dmg"
-	mkdir -p ../marketing/public/download
-	cp "$(BUILD_DIR)/$(APP_NAME).dmg" ../marketing/public/download/$(APP_NAME).dmg
 
 dmg-layout: bundle
 	./scripts/create-dmg.sh layout

@@ -14,6 +14,12 @@ ICON_SIZE=152
 
 ACTION="${1:-build}"
 
+# Run osascript (script on stdin) with a watchdog so a blocked Finder
+# automation prompt can't hang the build (e.g. on headless CI runners).
+run_osascript() {
+    perl -e 'alarm shift; exec @ARGV' 120 osascript
+}
+
 # Ensure bundle exists
 if [ ! -d "${BUNDLE_DIR}" ]; then
     echo "Error: ${BUNDLE_DIR} not found. Run 'make bundle' first."
@@ -119,8 +125,10 @@ EOF
         # are machine-specific and break on other Macs)
         create_writable_dmg
 
-        # Set window appearance, background, and icon positions via AppleScript
-        osascript <<EOF
+        # Set window appearance, background, and icon positions via AppleScript.
+        # If Finder automation is unavailable (e.g. CI), continue with the
+        # default layout instead of failing the whole build.
+        if ! run_osascript <<EOF
 tell application "Finder"
     tell disk "${VOL_NAME}"
         open
@@ -149,6 +157,9 @@ tell application "Finder"
     end tell
 end tell
 EOF
+        then
+            echo "Warning: Finder layout failed; DMG will use the default layout." >&2
+        fi
         # Give Finder time to flush .DS_Store to disk
         sleep 2
 

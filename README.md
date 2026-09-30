@@ -2,7 +2,7 @@
 
 A macOS Dock app that captures and mirrors selected app windows. Pick which apps to share, let capture auto-switch as you move between them, and see an overlay on the window that is currently being captured.
 
-[Download on the Mac App Store](https://apps.apple.com/au/app/screencaddy/id6760108218)
+[Download on the Mac App Store](https://apps.apple.com/au/app/screencaddy/id6760108218) · [Download the latest DMG](https://github.com/HelloAllan/screencaddy/releases/latest/download/ScreenCaddy.dmg)
 
 ![Focus mode](screenshots/02-focus-mode.png)
 
@@ -32,6 +32,24 @@ make clean                 # clean build artifacts
 ```
 
 The `bundle`, `appstore` and `dmg` targets sign with the author's Apple Developer identity. To build locally, change the `codesign --sign` identity in `app/Makefile` (for example `--sign -` for ad-hoc signing).
+
+## Releases
+
+Pushing a tag like `v1.0.1` runs the [Release workflow](.github/workflows/release.yml), which builds a universal (Apple Silicon and Intel) app, signs it with a Developer ID certificate, notarizes and staples the DMG, and publishes it as a GitHub release. The asset is always named `ScreenCaddy.dmg`, so `releases/latest/download/ScreenCaddy.dmg` is a stable download link.
+
+```bash
+git tag v1.0.1 && git push origin v1.0.1
+```
+
+The workflow can also be run manually from the Actions tab. That builds and notarizes a DMG and attaches it to the run as an artifact, without creating a release.
+
+Required repository secrets (Settings → Secrets and variables → Actions):
+
+- `MACOS_CERTIFICATE`: base64-encoded Developer ID Application `.p12` (`base64 -i cert.p12 | pbcopy`)
+- `MACOS_CERTIFICATE_PASSWORD`: password used when exporting the `.p12`
+- `APPLE_API_KEY_P8`: contents of the App Store Connect API key (`AuthKey_XXXX.p8`)
+- `APPLE_API_KEY_ID`: the API key ID
+- `APPLE_API_ISSUER_ID`: the API issuer ID
 
 ## Architecture
 
