@@ -17,12 +17,13 @@ jobs:
     defaults:
       run:
         working-directory: app
-    env:
-      KEYCHAIN_PATH: ${{ runner.temp }}/build.keychain-db
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Set keychain path
+        run: echo "KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain-db" >> "$GITHUB_ENV"
 
       - name: Require commit to be on main
         run: |
