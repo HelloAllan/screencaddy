@@ -35,13 +35,15 @@ The `bundle`, `appstore` and `dmg` targets sign with the author's Apple Develope
 
 ## Releases
 
-Pushing a tag like `v1.0.1` runs the [Release workflow](.github/workflows/release.yml), which builds a universal (Apple Silicon and Intel) app, signs it with a Developer ID certificate, notarizes and staples the DMG, and publishes it as a GitHub release. The asset is always named `ScreenCaddy.dmg`, so `releases/latest/download/ScreenCaddy.dmg` is a stable download link.
+The [Release workflow](.github/workflows/release.yml) builds a universal (Apple Silicon and Intel) app, signs it with a Developer ID certificate, notarizes and staples the DMG, and publishes it as a GitHub release. The asset is always named `ScreenCaddy.dmg`, so `releases/latest/download/ScreenCaddy.dmg` is a stable download link.
+
+To cut a release, run the workflow from the Actions tab (or the CLI) with a version. It tags the current `main` commit as `v<version>` and publishes the release:
 
 ```bash
-git tag v1.0.1 && git push origin v1.0.1
+gh workflow run release.yml --ref main -f version=1.0.1
 ```
 
-The workflow can also be run manually from the Actions tab. That builds and notarizes a DMG and attaches it to the run as an artifact, without creating a release.
+Pushing a `v*` tag to a commit on `main` also triggers a release. Running the workflow without a version only builds and notarizes a DMG and attaches it to the run as an artifact, without creating a release.
 
 Required repository secrets (Settings → Secrets and variables → Actions):
 
